@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <title>The Bored Project.</title>
+  <style>
+    :root{
+      --bg:#050505;
+      --panel:#0f0f10;
+      --text:#f5f5f5;
+      --muted:#9a9a9f;
+      --line:#242428;
+      --accent:#ffffff;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(255,255,255,.055), transparent 28%),
+        var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+      overflow:hidden;
+    }
+
+    button{font:inherit}
+
+    .app{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:
+        max(24px, env(safe-area-inset-top))
+        20px
+        max(24px, env(safe-area-inset-bottom));
+    }
+
+    .shell{
+      width:min(100%, 430px);
+      text-align:center;
+    }
+
+    .brand{
+      font-size:14px;
+      letter-spacing:.28em;
+      font-weight:800;
+      opacity:.9;
+      margin-bottom:52px;
+    }
+
+    .screen{
+      min-height:520px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .hidden{display:none!important}
+
+    .orb{
+      width:74px;
+      height:74px;
+      border-radius:50%;
+      border:1px solid #2c2c31;
+      position:relative;
+      margin-bottom:32px;
+      box-shadow:0 0 42px rgba(255,255,255,.05);
+    }
+
+    .orb::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius:inherit;
+      border-top:2px solid white;
+      animation:spin 1.1s linear infinite;
+    }
+
+    .orb::after{
+      content:"";
+      position:absolute;
+      inset:22px;
+      border-radius:50%;
+      background:white;
+      box-shadow:0 0 24px rgba(255,255,255,.28);
+      animation:pulse 1.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes pulse{to{transform:scale(.72);opacity:.45}}
+
+    .status{
+      font-weight:800;
+      letter-spacing:.11em;
+      font-size:13px;
+      min-height:18px;
+    }
+
+    .substatus{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:10px;
+      min-height:20px;
+    }
+
+    .progress{
+      width:100%;
+      max-width:290px;
+      height:3px;
+      background:#1c1c20;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:30px;
+    }
+
+    .bar{
+      width:0%;
+      height:100%;
+      background:white;
+      transition:width .55s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .mission-wrap{
+      width:100%;
+      opacity:0;
+      transform:translateY(18px) scale(.985);
+      transition:.7s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .mission-wrap.show{
+      opacity:1;
+      transform:none;
+    }
+
+    .eyebrow{
+      font-size:12px;
+      letter-spacing:.22em;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size:clamp(34px,9vw,52px);
+      line-height:.98;
+      letter-spacing:-.045em;
+      margin:0 auto 24px;
+      max-width:400px;
+    }
+
+    .description{
+      color:#c9c9cc;
+      font-size:16px;
+      line-height:1.55;
+      max-width:360px;
+      margin:0 auto 28px;
+    }
+
+    .meta{
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:34px;
+    }
+
+    .pill{
+      border:1px solid var(--line);
+      background:#0d0d0f;
+      border-radius:999px;
+      padding:8px 12px;
+      color:#bcbcc0;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .actions{
+      display:grid;
+      gap:10px;
+      width:100%;
+    }
+
+    .btn{
+      width:100%;
+      border-radius:16px;
+      min-height:56px;
+      border:1px solid var(--line);
+      cursor:pointer;
+      transition:.18s ease;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+
+    .btn:active{transform:scale(.985)}
+
+    .primary{
+      background:white;
+      color:black;
+      border-color:white;
+    }
+
+    .secondary{
+      background:#0c0c0e;
+      color:white;
+    }
+
+    .accepted{
+      margin-top:16px;
+      color:#9f9fa4;
+      font-size:13px;
+      opacity:0;
+      transition:.35s;
+    }
+
+    .accepted.show{opacity:1}
+
+    .tiny{
+      margin-top:34px;
+      font-size:11px;
+      color:#5f5f65;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+
+    @media (max-height:700px){
+      .brand{margin-bottom:20px}
+      .screen{min-height:470px}
+    }
+
+    /* Proper landscape layout for phones */
+    @media (orientation: landscape) and (max-height: 600px){
+      body{
+        overflow:auto;
+      }
+
+      .app{
+        min-height:100vh;
+        padding:
+          max(12px, env(safe-area-inset-top))
+          max(18px, env(safe-area-inset-right))
+          max(12px, env(safe-area-inset-bottom))
+          max(18px, env(safe-area-inset-left));
+      }
+
+      .shell{
+        width:min(100%, 980px);
+      }
+
+      .brand{
+        margin-bottom:8px;
+        font-size:11px;
+        letter-spacing:.24em;
+      }
+
+      .screen{
+        min-height:calc(100vh - 54px);
+      }
+
+      #loadingScreen{
+        min-height:calc(100vh - 54px);
+      }
+
+      .orb{
+        width:52px;
+        height:52px;
+        margin-bottom:18px;
+      }
+
+      .orb::after{
+        inset:16px;
+      }
+
+      .status{
+        font-size:11px;
+      }
+
+      .substatus{
+        font-size:12px;
+        margin-top:7px;
+      }
+
+      .progress{
+        margin-top:18px;
+        max-width:240px;
+      }
+
+      #missionScreen{
+        justify-content:center;
+      }
+
+      .mission-wrap{
+        display:grid;
+        grid-template-columns:minmax(0, 1.2fr) minmax(280px, .8fr);
+        grid-template-areas:
+          "eyebrow meta"
+          "title actions"
+          "description actions"
+          "tiny accepted";
+        column-gap:34px;
+        row-gap:10px;
+        align-items:center;
+        text-align:left;
+        max-width:900px;
+        margin:0 auto;
+      }
+
+      .eyebrow{
+        grid-area:eyebrow;
+        margin:0;
+        font-size:10px;
+      }
+
+      h1{
+        grid-area:title;
+        margin:0;
+        max-width:none;
+        font-size:clamp(28px, 5.1vw, 52px);
+        line-height:.94;
+      }
+
+      .description{
+        grid-area:description;
+        margin:4px 0 0;
+        max-width:560px;
+        font-size:13px;
+        line-height:1.42;
+      }
+
+      .meta{
+        grid-area:meta;
+        justify-content:flex-start;
+        margin:0 0 4px;
+      }
+
+      .pill{
+        font-size:10px;
+        padding:6px 9px;
+      }
+
+      .actions{
+        grid-area:actions;
+        align-self:center;
+        width:100%;
+      }
+
+      .btn{
+        min-height:48px;
+        border-radius:14px;
+        font-size:13px;
+      }
+
+      .accepted{
+        grid-area:accepted;
+        margin:0;
+        text-align:right;
+        font-size:11px;
+      }
+
+      .tiny{
+        grid-area:tiny;
+        margin:0;
+        font-size:9px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 420px){
+      .brand{
+        display:none;
+      }
+
+      .screen,
+      #loadingScreen{
+        min-height:100vh;
+      }
+
+      .mission-wrap{
+        column-gap:26px;
+      }
+
+      h1{
+        font-size:clamp(25px, 4.7vw, 44px);
+      }
+
+      .description{
+        font-size:12px;
+      }
+
+      .btn{
+        min-height:44px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="shell">
+      <div class="brand">THE BORED PROJECT.</div>
+
+      <section id="loadingScreen" class="screen">
+        <div class="orb"></div>
+        <div id="status" class="status">ANALYZING BOREDOM...</div>
+        <div id="substatus" class="substatus">Please remain dramatically unoccupied.</div>
+        <div class="progress"><div id="bar" class="bar"></div></div>
+      </section>
+
+      <section id="missionScreen" class="screen hidden">
+        <div id="missionWrap" class="mission-wrap">
+          <div class="eyebrow">YOUR MISSION</div>
+          <h1 id="missionTitle"></h1>
+          <p id="missionDescription" class="description"></p>
+
+          <div class="meta">
+            <span id="timePill" class="pill"></span>
+            <span id="difficultyPill" class="pill"></span>
+            <span id="categoryPill" class="pill"></span>
+          </div>
+
+          <div class="actions">
+            <button id="acceptBtn" class="btn primary">I'M DOING IT</button>
+            <button id="againBtn" class="btn secondary">HELL NAH, AGAIN</button>
+          </div>
+
+          <div id="accepted" class="accepted">Mission accepted. Go be less bored.</div>
+          <div class="tiny">The Bored Project · v0.2</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+<script>
+  const missions = [
+    {
+      title: "BUILD SOMETHING USELESS THAT LOOKS EXPENSIVE",
+      description: "Open Fusion 360 and design a totally unnecessary desk object like it belongs in a luxury design store. No tutorials unless you get genuinely stuck.",
+      time: "1–2 HOURS",
+      difficulty: "MEDIUM",
+      category: "3D DESIGN"
+    },
+    {
+      title: "MAKE A FAKE PRODUCT AD",
+      description: "Pick one random object near you, photograph it like a premium product, then make a 15-second commercial with dramatic lighting, sound and text.",
+      time: "1–2 HOURS",
+      difficulty: "MEDIUM",
+      category: "PHOTO + VIDEO"
+    },
+    {
+      title: "DESIGN YOUR DREAM DESK ACCESSORY",
+      description: "Find one tiny annoyance on your desk and solve it with a custom 3D-printed part. Measure it properly, model it, and start the prototype today.",
+      time: "1–3 HOURS",
+      difficulty: "MEDIUM",
+      category: "MAKER"
+    },
+    {
+      title: "TAKE 10 PHOTOS OF BORING THINGS",
+      description: "Your challenge: make ten completely ordinary objects look cinematic, mysterious, expensive or enormous using only composition and lighting.",
+      time: "45–90 MIN",
+      difficulty: "EASY",
+      category: "PHOTOGRAPHY"
+    },
+    {
+      title: "MAKE YOUR OWN MINI GAME",
+      description: "Create the dumbest playable game you can finish tonight. One mechanic, one goal, one sound effect. Polish beats complexity.",
+      time: "2–3 HOURS",
+      difficulty: "HARD",
+      category: "CODING"
+    },
+    {
+      title: "BUILD A PRINT-IN-PLACE MECHANISM",
+      description: "Design a hinge, clicker, spinner or little mechanical object that prints already assembled. Your only enemy is tolerance.",
+      time: "1–2 HOURS",
+      difficulty: "HARD",
+      category: "3D PRINTING"
+    },
+    {
+      title: "MAKE A 30-SECOND MOVIE",
+      description: "No story planning. Grab your camera or phone and make a tiny cinematic sequence around one location. Give it music and an ending.",
+      time: "1–2 HOURS",
+      difficulty: "MEDIUM",
+      category: "FILM"
+    },
+    {
+      title: "REDESIGN SOMETHING YOU OWN",
+      description: "Choose an everyday object you already use and design your own improved version. You don't have to print it — just make the concept believable.",
+      time: "1–2 HOURS",
+      difficulty: "MEDIUM",
+      category: "DESIGN"
+    },
+    {
+      title: "MAKE YOUR PC LOOK ILLEGAL",
+      description: "Build a ridiculously clean custom desktop theme: wallpaper, icons, widgets, sounds and layout. Make it feel like a fictional operating system.",
+      time: "1–2 HOURS",
+      difficulty: "EASY",
+      category: "PC"
+    },
+    {
+      title: "GO OUT WITH ONE PHOTO RULE",
+      description: "Take a short walk, but every photo must follow one rule: reflections only, one color only, symmetry only, or shadows only. Pick one and commit.",
+      time: "45–90 MIN",
+      difficulty: "EASY",
+      category: "OUTSIDE"
+    }
+  ];
+
+  const loadingSteps = [
+    ["ANALYZING BOREDOM...", "Please remain dramatically unoccupied.", 18],
+    ["CHECKING AVAILABLE CREATIVITY...", "Results are concerningly high.", 42],
+    ["REJECTING TERRIBLE IDEAS...", "No, scrolling does not count.", 67],
+    ["CALCULATING MAXIMUM FUN...", "Applying unnecessary science.", 86],
+    ["MISSION FOUND.", "This one is your problem now.", 100]
+  ];
+
+  let lastMissionIndex = -1;
+
+  function randomMission() {
+    let index;
+    do {
+      index = Math.floor(Math.random() * missions.length);
+    } while (index === lastMissionIndex && missions.length > 1);
+    lastMissionIndex = index;
+    return missions[index];
+  }
+
+  function runSequence() {
+    const loading = document.getElementById("loadingScreen");
+    const missionScreen = document.getElementById("missionScreen");
+    const wrap = document.getElementById("missionWrap");
+    const accepted = document.getElementById("accepted");
+
+    accepted.classList.remove("show");
+    wrap.classList.remove("show");
+    missionScreen.classList.add("hidden");
+    loading.classList.remove("hidden");
+
+    let step = 0;
+    document.getElementById("bar").style.width = "0%";
+
+    function next() {
+      const [status, substatus, progress] = loadingSteps[step];
+      document.getElementById("status").textContent = status;
+      document.getElementById("substatus").textContent = substatus;
+      document.getElementById("bar").style.width = progress + "%";
+
+      step++;
+      if (step < loadingSteps.length) {
+        setTimeout(next, 800);
+      } else {
+        setTimeout(showMission, 700);
+      }
+    }
+
+    setTimeout(next, 350);
+  }
+
+  function showMission() {
+    const mission = randomMission();
+
+    document.getElementById("missionTitle").textContent = mission.title;
+    document.getElementById("missionDescription").textContent = mission.description;
+    document.getElementById("timePill").textContent = "TIME · " + mission.time;
+    document.getElementById("difficultyPill").textContent = "DIFFICULTY · " + mission.difficulty;
+    document.getElementById("categoryPill").textContent = mission.category;
+
+    document.getElementById("loadingScreen").classList.add("hidden");
+    document.getElementById("missionScreen").classList.remove("hidden");
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById("missionWrap").classList.add("show");
+      });
+    });
+  }
+
+  document.getElementById("againBtn").addEventListener("click", runSequence);
+
+  document.getElementById("acceptBtn").addEventListener("click", () => {
+    document.getElementById("accepted").classList.add("show");
+    if (navigator.vibrate) navigator.vibrate([40, 30, 70]);
+  });
+
+  runSequence();
+</script>
+</body>
+</html>
