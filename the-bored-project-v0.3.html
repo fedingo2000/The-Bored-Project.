@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>The Bored Project.</title>
+<style>
+:root{--bg:#050505;--panel:#0f0f10;--text:#f5f5f5;--muted:#9a9a9f;--line:#242428}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.055),transparent 28%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+button{font:inherit}
+.hidden{display:none!important}
+.app{min-height:100%;display:flex;align-items:center;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom))}
+.shell{width:min(100%,900px);margin:auto}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:18px}
+.brand{font-size:13px;letter-spacing:.24em;font-weight:900;text-align:center;white-space:nowrap}
+.nav-btn,.ghost-btn{border:1px solid transparent;background:transparent;color:#76767c;cursor:pointer;font-weight:800;font-size:10px;letter-spacing:.08em;padding:10px 12px;border-radius:12px;transition:.18s}
+.nav-btn:first-child{justify-self:start}.nav-btn:last-child{justify-self:end}
+.nav-btn.active,.nav-btn:hover,.ghost-btn:hover{color:#fff;border-color:var(--line);background:#0c0c0e}
+.screen{min-height:520px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.orb{width:74px;height:74px;border-radius:50%;border:1px solid #2c2c31;position:relative;margin-bottom:32px;box-shadow:0 0 42px rgba(255,255,255,.05)}
+.orb:before{content:"";position:absolute;inset:-1px;border-radius:inherit;border-top:2px solid #fff;animation:spin 1.1s linear infinite}
+.orb:after{content:"";position:absolute;inset:22px;border-radius:50%;background:#fff;box-shadow:0 0 24px rgba(255,255,255,.28);animation:pulse 1.2s ease-in-out infinite alternate}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{to{transform:scale(.72);opacity:.45}}
+.status{font-weight:800;letter-spacing:.11em;font-size:13px;min-height:18px}
+.substatus{color:var(--muted);font-size:14px;margin-top:10px;min-height:20px;text-align:center}
+.progress{width:100%;max-width:290px;height:3px;background:#1c1c20;border-radius:999px;overflow:hidden;margin-top:30px}
+.bar{width:0;height:100%;background:#fff;transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.mission-wrap{width:100%;opacity:0;transform:translateY(18px) scale(.985);transition:.7s cubic-bezier(.2,.8,.2,1);text-align:center}
+.mission-wrap.show{opacity:1;transform:none}
+.eyebrow{font-size:12px;letter-spacing:.22em;color:var(--muted);font-weight:800;margin-bottom:18px}
+h1{font-size:clamp(34px,9vw,52px);line-height:.98;letter-spacing:-.045em;margin:0 auto 24px;max-width:650px}
+.description{color:#c9c9cc;font-size:16px;line-height:1.55;max-width:560px;margin:0 auto 28px}
+.meta{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:34px}
+.pill{border:1px solid var(--line);background:#0d0d0f;border-radius:999px;padding:8px 12px;color:#bcbcc0;font-size:12px;font-weight:700}
+.actions{display:grid;gap:10px;width:min(100%,430px);margin:auto}
+.btn{width:100%;border-radius:16px;min-height:56px;border:1px solid var(--line);cursor:pointer;transition:.18s;font-weight:800;letter-spacing:.02em}
+.btn:active{transform:scale(.985)}
+.primary{background:#fff;color:#000;border-color:#fff}.secondary{background:#0c0c0e;color:#fff}
+.accepted{margin-top:16px;color:#9f9fa4;font-size:13px;opacity:0;transition:.35s;text-align:center}.accepted.show{opacity:1}
+.tiny{margin-top:34px;font-size:11px;color:#5f5f65;letter-spacing:.1em;text-transform:uppercase;text-align:center}
+
+.projects-screen{justify-content:flex-start;align-items:stretch;text-align:left;overflow-y:auto;max-height:calc(100vh - 100px);padding-bottom:20px}
+.projects-head{display:flex;align-items:end;justify-content:space-between;gap:20px;padding:18px 0 16px;border-bottom:1px solid var(--line)}
+.projects-head .eyebrow{margin:0 0 8px}.projects-head h2{margin:0;font-size:34px;letter-spacing:-.035em}
+.ghost-btn{border-color:var(--line);flex:0 0 auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 18px}
+.stat{background:#0c0c0e;border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.stat strong{font-size:26px;letter-spacing:-.04em}.stat span{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.1em}
+.projects-list{display:grid;gap:12px}
+.project-card{background:linear-gradient(180deg,#101012,#0a0a0c);border:1px solid var(--line);border-radius:18px;padding:18px}
+.project-top,.project-meta,.project-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.project-top{justify-content:space-between;margin-bottom:12px}
+.project-category,.project-date,.project-meta span{color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.08em}
+.project-card h3{margin:0 0 10px;font-size:20px;line-height:1.05;letter-spacing:-.025em}
+.project-card p{margin:0 0 14px;color:#b9b9be;font-size:13px;line-height:1.45}
+.project-meta{margin-bottom:14px}.project-meta span{border:1px solid var(--line);border-radius:999px;padding:6px 8px}
+.status-btn,.delete-btn{border:1px solid var(--line);background:#0c0c0e;color:#9d9da2;padding:9px 11px;border-radius:11px;font-size:10px;font-weight:800;cursor:pointer}
+.status-btn.selected{background:#fff;color:#000;border-color:#fff}.delete-btn{margin-left:auto;color:#727279}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}.empty-icon{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);margin:0 auto 16px;font-weight:900;color:#fff}
+.empty-state h3{color:#fff;margin:0 0 8px}.empty-state p{margin:0;font-size:13px}
+
+@media (orientation:landscape) and (max-height:600px){
+  .app{padding:max(10px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+  .topbar{margin-bottom:2px}.brand{font-size:10px}
+  .screen{min-height:calc(100vh - 48px)}
+  .orb{width:50px;height:50px;margin-bottom:16px}.orb:after{inset:15px}
+  .status{font-size:11px}.substatus{font-size:12px;margin-top:6px}.progress{margin-top:16px;max-width:240px}
+  .mission-wrap{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);grid-template-areas:"eyebrow meta" "title actions" "description actions" "tiny accepted";column-gap:32px;row-gap:10px;align-items:center;text-align:left}
+  .mission-wrap .eyebrow{grid-area:eyebrow;margin:0;font-size:10px}
+  h1{grid-area:title;margin:0;max-width:none;font-size:clamp(27px,5vw,50px);line-height:.94}
+  .description{grid-area:description;margin:4px 0 0;max-width:560px;font-size:13px;line-height:1.42}
+  .meta{grid-area:meta;justify-content:flex-start;margin:0}.pill{font-size:10px;padding:6px 9px}
+  .actions{grid-area:actions;width:100%}.btn{min-height:46px;font-size:13px}
+  .accepted{grid-area:accepted;margin:0;text-align:right;font-size:11px}.tiny{grid-area:tiny;margin:0;text-align:left;font-size:9px}
+  .projects-screen{max-height:calc(100vh - 48px)}
+  .projects-head{padding:6px 0 9px}.projects-head h2{font-size:26px}
+  .stats{margin:9px 0 11px}.stat{padding:9px 11px}.stat strong{font-size:20px}
+  .project-card{padding:13px}.project-card h3{font-size:17px}.project-card p{font-size:12px}
+}
+@media (max-width:520px){
+  .topbar{grid-template-columns:auto 1fr auto}.brand{font-size:9px;letter-spacing:.16em}
+  .nav-btn{padding:9px 7px;font-size:9px}.projects-head h2{font-size:28px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="shell">
+  <div class="topbar">
+    <button id="homeBtn" class="nav-btn active">MISSION</button>
+    <div class="brand">THE BORED PROJECT.</div>
+    <button id="projectsBtn" class="nav-btn">MY PROJECTS</button>
+  </div>
+
+  <section id="loadingScreen" class="screen">
+    <div class="orb"></div>
+    <div id="status" class="status">ANALYZING BOREDOM...</div>
+    <div id="substatus" class="substatus">Please remain dramatically unoccupied.</div>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+  </section>
+
+  <section id="missionScreen" class="screen hidden">
+    <div id="missionWrap" class="mission-wrap">
+      <div class="eyebrow">YOUR MISSION</div>
+      <h1 id="missionTitle"></h1>
+      <p id="missionDescription" class="description"></p>
+      <div class="meta">
+        <span id="timePill" class="pill"></span>
+        <span id="difficultyPill" class="pill"></span>
+        <span id="categoryPill" class="pill"></span>
+      </div>
+      <div class="actions">
+        <button id="acceptBtn" class="btn primary">I'M DOING IT</button>
+        <button id="againBtn" class="btn secondary">HELL NAH, AGAIN</button>
+      </div>
+      <div id="accepted" class="accepted">Mission saved to My Projects.</div>
+      <div class="tiny">The Bored Project · v0.3</div>
+    </div>
+  </section>
+
+  <section id="projectsScreen" class="screen hidden projects-screen">
+    <div class="projects-head">
+      <div>
+        <div class="eyebrow">MY PROJECTS</div>
+        <h2>Your boredom archive.</h2>
+      </div>
+      <button id="clearBtn" class="ghost-btn">CLEAR ALL</button>
+    </div>
+    <div id="stats" class="stats"></div>
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">Ø</div>
+      <h3>Nothing here yet.</h3>
+      <p>Accept a mission and it’ll show up here.</p>
+    </div>
+    <div id="projectsList" class="projects-list"></div>
+  </section>
+</div>
+</main>
+
+<script>
+const missions=[
+{title:"BUILD SOMETHING USELESS THAT LOOKS EXPENSIVE",description:"Open Fusion 360 and design a totally unnecessary desk object like it belongs in a luxury design store. No tutorials unless you get genuinely stuck.",time:"1–2 HOURS",difficulty:"MEDIUM",category:"3D DESIGN"},
+{title:"MAKE A FAKE PRODUCT AD",description:"Pick one random object near you, photograph it like a premium product, then make a 15-second commercial with dramatic lighting, sound and text.",time:"1–2 HOURS",difficulty:"MEDIUM",category:"PHOTO + VIDEO"},
+{title:"DESIGN YOUR DREAM DESK ACCESSORY",description:"Find one tiny annoyance on your desk and solve it with a custom 3D-printed part. Measure it properly, model it, and start the prototype today.",time:"1–3 HOURS",difficulty:"MEDIUM",category:"MAKER"},
+{title:"TAKE 10 PHOTOS OF BORING THINGS",description:"Make ten completely ordinary objects look cinematic, mysterious, expensive or enormous using only composition and lighting.",time:"45–90 MIN",difficulty:"EASY",category:"PHOTOGRAPHY"},
+{title:"MAKE YOUR OWN MINI GAME",description:"Create the dumbest playable game you can finish tonight. One mechanic, one goal, one sound effect. Polish beats complexity.",time:"2–3 HOURS",difficulty:"HARD",category:"CODING"},
+{title:"BUILD A PRINT-IN-PLACE MECHANISM",description:"Design a hinge, clicker, spinner or little mechanical object that prints already assembled. Your only enemy is tolerance.",time:"1–2 HOURS",difficulty:"HARD",category:"3D PRINTING"},
+{title:"MAKE A 30-SECOND MOVIE",description:"No story planning. Grab your camera or phone and make a tiny cinematic sequence around one location. Give it music and an ending.",time:"1–2 HOURS",difficulty:"MEDIUM",category:"FILM"},
+{title:"REDESIGN SOMETHING YOU OWN",description:"Choose an everyday object you already use and design your own improved version. You don't have to print it — just make the concept believable.",time:"1–2 HOURS",difficulty:"MEDIUM",category:"DESIGN"},
+{title:"MAKE YOUR PC LOOK ILLEGAL",description:"Build a ridiculously clean custom desktop theme: wallpaper, icons, widgets, sounds and layout. Make it feel like a fictional operating system.",time:"1–2 HOURS",difficulty:"EASY",category:"PC"},
+{title:"GO OUT WITH ONE PHOTO RULE",description:"Take a short walk, but every photo must follow one rule: reflections only, one color only, symmetry only, or shadows only. Pick one and commit.",time:"45–90 MIN",difficulty:"EASY",category:"OUTSIDE"}
+];
+
+const loadingSteps=[
+["ANALYZING BOREDOM...","Please remain dramatically unoccupied.",18],
+["CHECKING AVAILABLE CREATIVITY...","Results are concerningly high.",42],
+["REJECTING TERRIBLE IDEAS...","No, scrolling does not count.",67],
+["CALCULATING MAXIMUM FUN...","Applying unnecessary science.",86],
+["MISSION FOUND.","This one is your problem now.",100]
+];
+
+const STORAGE_KEY="theBoredProject.acceptedMissions.v1";
+let lastMissionIndex=-1,currentMission=null;
+const loadingScreen=document.getElementById("loadingScreen");
+const missionScreen=document.getElementById("missionScreen");
+const projectsScreen=document.getElementById("projectsScreen");
+const homeBtn=document.getElementById("homeBtn");
+const projectsBtn=document.getElementById("projectsBtn");
+
+function getProjects(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch{return[]}}
+function saveProjects(p){localStorage.setItem(STORAGE_KEY,JSON.stringify(p))}
+function escapeHtml(v){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+
+function randomMission(){
+  let i; do{i=Math.floor(Math.random()*missions.length)}while(i===lastMissionIndex&&missions.length>1);
+  lastMissionIndex=i; return missions[i];
+}
+
+function runSequence(){
+  homeBtn.classList.add("active");projectsBtn.classList.remove("active");
+  projectsScreen.classList.add("hidden");
+  document.getElementById("accepted").classList.remove("show");
+  document.getElementById("missionWrap").classList.remove("show");
+  missionScreen.classList.add("hidden");loadingScreen.classList.remove("hidden");
+  let step=0;document.getElementById("bar").style.width="0%";
+  function next(){
+    const [s,sub,p]=loadingSteps[step];
+    document.getElementById("status").textContent=s;
+    document.getElementById("substatus").textContent=sub;
+    document.getElementById("bar").style.width=p+"%";
+    step++;
+    if(step<loadingSteps.length)setTimeout(next,650);else setTimeout(showMission,500);
+  }
+  setTimeout(next,250);
+}
+
+function showMission(){
+  currentMission=randomMission();
+  document.getElementById("missionTitle").textContent=currentMission.title;
+  document.getElementById("missionDescription").textContent=currentMission.description;
+  document.getElementById("timePill").textContent="TIME · "+currentMission.time;
+  document.getElementById("difficultyPill").textContent="DIFFICULTY · "+currentMission.difficulty;
+  document.getElementById("categoryPill").textContent=currentMission.category;
+  loadingScreen.classList.add("hidden");missionScreen.classList.remove("hidden");
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.getElementById("missionWrap").classList.add("show")));
+}
+
+function acceptCurrentMission(){
+  if(!currentMission)return;
+  const projects=getProjects();
+  projects.unshift({
+    id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),
+    ...currentMission,
+    acceptedAt:new Date().toISOString(),
+    status:"IN PROGRESS"
+  });
+  saveProjects(projects);
+  const a=document.getElementById("accepted");
+  a.textContent="Mission saved to My Projects.";
+  a.classList.add("show");
+  if(navigator.vibrate)navigator.vibrate([40,30,70]);
+}
+
+function showProjects(){
+  loadingScreen.classList.add("hidden");missionScreen.classList.add("hidden");projectsScreen.classList.remove("hidden");
+  homeBtn.classList.remove("active");projectsBtn.classList.add("active");renderProjects();
+}
+
+function updateStatus(id,status){
+  saveProjects(getProjects().map(p=>p.id===id?{...p,status}:p));renderProjects();
+}
+function removeProject(id){
+  saveProjects(getProjects().filter(p=>p.id!==id));renderProjects();
+}
+
+function renderProjects(){
+  const projects=getProjects(),list=document.getElementById("projectsList"),empty=document.getElementById("emptyState"),stats=document.getElementById("stats");
+  list.innerHTML="";
+  const completed=projects.filter(p=>p.status==="DONE").length;
+  const inProgress=projects.filter(p=>p.status==="IN PROGRESS").length;
+  stats.innerHTML=`<div class="stat"><strong>${projects.length}</strong><span>ACCEPTED</span></div><div class="stat"><strong>${inProgress}</strong><span>IN PROGRESS</span></div><div class="stat"><strong>${completed}</strong><span>DONE</span></div>`;
+  if(!projects.length){empty.classList.remove("hidden");return}else empty.classList.add("hidden");
+  projects.forEach(project=>{
+    const card=document.createElement("article");card.className="project-card";
+    const prettyDate=new Date(project.acceptedAt).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
+    card.innerHTML=`
+      <div class="project-top"><span class="project-category">${escapeHtml(project.category)}</span><span class="project-date">${escapeHtml(prettyDate)}</span></div>
+      <h3>${escapeHtml(project.title)}</h3>
+      <p>${escapeHtml(project.description)}</p>
+      <div class="project-meta"><span>${escapeHtml(project.time)}</span><span>${escapeHtml(project.difficulty)}</span></div>
+      <div class="project-actions">
+        <button class="status-btn ${project.status==="IN PROGRESS"?"selected":""}" data-status="IN PROGRESS">IN PROGRESS</button>
+        <button class="status-btn ${project.status==="DONE"?"selected":""}" data-status="DONE">DONE</button>
+        <button class="delete-btn">DELETE</button>
+      </div>`;
+    card.querySelectorAll(".status-btn").forEach(btn=>btn.addEventListener("click",()=>updateStatus(project.id,btn.dataset.status)));
+    card.querySelector(".delete-btn").addEventListener("click",()=>removeProject(project.id));
+    list.appendChild(card);
+  });
+}
+
+document.getElementById("againBtn").addEventListener("click",runSequence);
+document.getElementById("acceptBtn").addEventListener("click",acceptCurrentMission);
+homeBtn.addEventListener("click",runSequence);
+projectsBtn.addEventListener("click",showProjects);
+document.getElementById("clearBtn").addEventListener("click",()=>{if(confirm("Delete every saved project from this device?")){localStorage.removeItem(STORAGE_KEY);renderProjects()}});
+
+runSequence();
+</script>
+</body>
+</html>
